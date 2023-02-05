@@ -3,15 +3,13 @@
     include_once("process/hamburgueria.php");
 ?>
 
-<div class="alert-success">
-        <p>Pedido feito com sucesso!</p>
-</div>
+
 
 <div id="form-container">
     
     <h2>Faça o seu Pedido</h2>
     
-    <form action="process/burguer.php" id="burguer-form" method="POST">
+    <form action="process/hamburgueria.php" id="burguer-form" method="POST">
 
         <div>
             <label for="pao">Pão:</label>
@@ -44,7 +42,7 @@
                 <?php foreach($acompanhamentos as $acompanhamento) : ?>
                         <option value="<?=$acompanhamento["id"]?>"> <?= $acompanhamento["nome"]?> </option>
                     <?php endforeach ?>
-                    
+
                 </select>
         </div>
 
