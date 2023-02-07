@@ -86,6 +86,27 @@
 
     } else if ($method === "POST"){
 
+        $type = $_POST["type"];
+
+        //deletar pedido 
+        if($type === "delete"){
+
+            $hamburguerId = $_POST["id"];
+
+            $deleteQuery = $conn->prepare("DELETE FROM pedidos WHERE hamburguer_id = :hamburguer_id;");
+            $deleteQuery->bindParam(":hamburguer_id", $hamburguerId, PDO::PARAM_INT);
+
+            $deleteQuery->execute();
+
+            $_SESSION["msg"] = "Pedido removido com sucesso!";
+            $_SESSION["status"] = "success";
+
+
+        };
+
+        //retorna para dash 
+        header("Location: ../dashboard.php");
+
     }
 
 ?>
