@@ -102,6 +102,23 @@
             $_SESSION["status"] = "success";
 
 
+        //atualizar status do pedido
+        } else if($type === "update"){
+
+            $hamburguerId = $_POST["id"];
+            $statusId = $_POST["status"];
+
+            $updateQuery = $conn->prepare("UPDATE pedidos SET status_id = :status_id WHERE hamburguer_id = :hamburguer_id");
+
+            $updateQuery->bindParam(":hamburguer_id", $hamburguerId, PDO::PARAM_INT);
+            $updateQuery->bindParam(":status_id", $statusId, PDO::PARAM_INT);
+
+            $updateQuery->execute();
+
+            $_SESSION["msg"] = "Pedido atualizado com sucesso!";
+            $_SESSION["status"] = "success";
+
+
         };
 
         //retorna para dash 
