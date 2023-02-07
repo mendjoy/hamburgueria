@@ -40,9 +40,49 @@
             $hamburguer["pao"] = $pao["tipo"];
 
 
+            //resgatando acompanhamentos 
+
+            $acompanhamentosQuery = $conn->prepare("SELECT * FROM  hamburguer_acompanhamento WHERE hamburguer_id = :hamburguer_id");
+
+            $acompanhamentosQuery->bindParam(":hamburguer_id", $hamburguer["id"]);
+
+            $acompanhamentosQuery->execute();
+
+            $acompanhamentos = $paoQuery->fetchAll(PDO::FETCH_ASSOC);
 
 
+            //resgatando nome dos acompanhamentos
+            $acompanhamentosHamburguer = [];
+
+            $acompanhamentoQuery = $conn->prepare("SELECT * FROM acompanhamentos WHERE id = :acompanhamento_id");
+
+            foreach($acompanhamentos as $acompanhamento) {
+
+                $acompanhamentoQuery->bindParam(":acompanhamento_id", $acompanhamento["acompanhamento_id"]);
+
+                $acompanhamentoQuery->execute();
+
+                $acompanhamentoHamburguer = $acompanhamentoQuery->fetch(PDO::FETCH_ASSOC);
+
+                array_push($acompanhamentosHamburguer, $acompanhamentoHamburguer["nome"]);
+
+            };
+
+            $hamburguer["acompanhamentos"] = $acompanhamentosHamburguer;
+
+
+            //adicionar status do pedido 
+            $hamburguer["status"] = $pedido["status_id"];
+
+            array_push($hamburguers, $hamburguer);
+
+            
         };
+
+        //Resgatando status
+        $statusQuery = $conn->query("SELECT * FROM status;");
+        $status = $statusQuery->fetchAll();
+
 
     } else if ($method === "POST"){
 
