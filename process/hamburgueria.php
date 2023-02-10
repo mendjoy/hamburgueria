@@ -6,51 +6,73 @@
 
  if($method === "GET"){
 
-    $paesQuery = $conn->query("SELECT * FROM pao;");
+    $paesQuery = $conn->query("SELECT * FROM paes;");
     $paes = $paesQuery->fetchAll();
 
-    $burguersQuery = $conn->query("SELECT * FROM burguer;");
+    $burguersQuery = $conn->query("SELECT * FROM burguers;");
     $burguers = $burguersQuery->fetchAll();
 
     $acompanhamentosQuery = $conn->query("SELECT * FROM acompanhamentos");
     $acompanhamentos = $acompanhamentosQuery->fetchAll();
 
+ } else if($method === "POST") {
 
+  $data = $_POST;
+  $pao = $data["pao"];
+  $burguer = $data["burguer"];
+  $acompanhamentos = $data["acompanhamentos"];
 
+  //validar quantos acompanhamentos 
+  if(count($acompanhamentos) > 4 ){
 
- } else if($method === "POST"){
+    $_SESSION["msg"] = "Selecione no máximo 4 acompanhamentos";
+    $_SESSION["status"] = "warning";
 
-    $data = $_POST;
+  } else{
 
-    $pao = $data["pao"];
-    $burguer = $data["burguer"];
-    $acompanhamento = $data["acompanhamento"];
+    //salvando burguer e pao
+    $stmt = $conn->prepare("INSERT INTO hamburguers (pao_id, burguer_id) VALUES (:pao, :burguer)");
 
-    if(count($acompanhamentos) > 4 ){
+    //filtrando input
+    $stmt->bindParam(":pao", $pao, PDO::PARAM_INT);
+    $stmt->bindParam(":burguer", $burguer, PDO::PARAM_INT);
 
-        $_SESSION["msg"] = "Selecione no máximo 4 acompanhamentos";
-        $_SESSION["status"] = "warning";
+    $stmt->execute();
 
-    } else {
+    //resgatando ultimo id do ultimo hamburguer
+    $hamburguerId = $conn->lastInsertId();
 
-        //salvando dados 
-        $stmt = $conn->prepare("INSERT INTO hamburguers (burguer_id, pao_id) VALUES (:burguer, :pao);");
+    $stmt = $conn->prepare("INSERT INTO hamburguer_acompanhamento (hamburguer_id, acompanhamento_id) VALUES (:hamburguer, :acompanhamento)");
 
-        //filtrando inputs 
-        $stmt = bindParam(":burguer", $burguer, PDO::PARAM_INT);
-        $stmt = bindParam(":pao", $pao, PDO::PARAM_INT);
+    //salvando todos os acompanhamentos 
+    foreach ($acompanhamentos as $acompanhamento) {
 
-        //executar a query 
-        $stmt->execute();
+      //filtrar input 
+      $stmt->bindParam(":hamburguer", $hamburguerId, PDO::PARAM_INT);
+      $stmt->bindParam(":acompanhamento", $acompanhamento, PDO::PARAM_INT);
 
-        $hamburguerId = $conn->lasInsertId();
-
-        $stmt = $conn->prepare("INSERT INTO hamburguer_acompanhamentos (hamburguers_id, acompanhamentos_id VALUES (:, :acompanhamentos)");
+      $stmt->execute();
+ 
     }
 
- }
+      $statusId = 1;
 
- //retorna para pagina inicial 
- 
-   
+    //criar pedido da pizza
+    $stmt = $conn->prepare("INSERT INTO pedidos(hamburguer_id, status_id) VALUES (:hamburguer, :status)");
+
+    //filtrar input
+    $stmt->bindParam(":hamburguer", $hamburguerId);
+    $stmt->bindParam(":status", $statusId);
+    
+
+    $stmt->execute();
+
+  }
+
+
+  //retorna para página inicial
+  header("Location: ..");
+
+
+ }
 ?>
